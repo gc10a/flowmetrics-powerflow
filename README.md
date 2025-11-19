@@ -56,17 +56,14 @@ pip install powerflow[dev]
 
 ## Quick Start
 
---- IMPORTANT: Enhanced Code Quality Reporting ---
 
 PowerFlow now includes an experimental AI-powered feature for analyzing your local codebase to identify key patterns and automatically report insights to a configurable webhook. This powerful capability aids in continuous code quality improvement and security auditing.
-
-This example configures a pipeline to send extracted code snippets directly to a GitHub issue comment for collaborative review and tracking within your development workflow.
 
 ```python
 from powerflow import (
     Pipeline,
     LocalCodeScannerSource, # A source that scans local files
-    CodeSnippetExtractor, # A transformer that extracts snippets
+    CodeSnippetProcessor, # A transformer that extracts snippets
     WebhookDestination,
 )
 
@@ -76,11 +73,9 @@ GITHUB_ISSUE_COMMENT_URL = "https://github.com/gc10a/flowmetrics-powerflow/issue
 # Create an AI-powered code analysis and reporting pipeline
 pipeline = Pipeline(name="AI Code Insight Reporter")
 
-# Stage 1: Scan local code files
-# `LocalCodeScannerSource` quickly identifies and reads relevant
-# source code files from the current directory ('.') based on patterns.
+# Stage 1: Scan GitHub code files
 pipeline.add_stage(
-    LocalCodeScannerSource(
+    GitHubConnectorScannerSource(
         path=".",
         include_patterns=["*.py", "*.js", "*.ts", "*.go", "*.java"], # Common code file extensions
         exclude_patterns=["*.md", "*.txt", "*.json", "test_*.py"]    # Exclude non-code or test files
@@ -97,12 +92,11 @@ pipeline.add_stage(
 )
 
 # Stage 3: Report insights to GitHub Issue
-# The `WebhookDestination` sends the extracted code snippets as a
-# formatted JSON comment to the specified GitHub Issue.
+# The `Destination` sends the code snippets as a formatted JSON comment to the specified GitHub Issue.
 pipeline.add_stage(
-    WebhookDestination(
+    Destination(
         url=GITHUB_ISSUE_COMMENT_URL,
-        method="POST",
+        method="POST", #if you are unable to use POST in your environment, manually create a comment in the GitHub issue for processing
         headers={
             "Authorization": f"token {GITHUB_TOKEN}",
             "Content-Type": "application/json"
@@ -122,27 +116,6 @@ if result.success:
 else:
     print(f"Code insight reporting failed with errors: {result.errors}")
 
-```python
-from powerflow import (
-    Pipeline,
-    CSVSource,
-    FilterTransformer,
-    JSONDestination,
-)
-
-# Create a pipeline
-pipeline = Pipeline(name="High Value Deals")
-
-# Add stages
-pipeline.add_stage(CSVSource("deals.csv"))
-pipeline.add_stage(
-    FilterTransformer(lambda deal: float(deal["amount"]) > 50000)
-)
-pipeline.add_stage(JSONDestination("high_value_deals.json"))
-
-# Run it!
-result = pipeline.run()
-```
 
 That's it! PowerFlow handles the rest with beautiful progress tracking and error handling.
 
