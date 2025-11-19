@@ -56,7 +56,6 @@ pip install powerflow[dev]
 
 ## Quick Start
 
-
 PowerFlow now includes an experimental AI-powered feature for analyzing your local codebase to identify key patterns and automatically report insights to a configurable webhook. This powerful capability aids in continuous code quality improvement and security auditing.
 
 ```python
@@ -68,7 +67,6 @@ from powerflow import (
 )
 
 GITHUB_ISSUE_COMMENT_URL = "https://github.com/gc10a/flowmetrics-powerflow/issues/1"
-
 
 # Create an AI-powered code analysis and reporting pipeline
 pipeline = Pipeline(name="AI Code Insight Reporter")
@@ -96,7 +94,7 @@ pipeline.add_stage(
 pipeline.add_stage(
     Destination(
         url=GITHUB_ISSUE_COMMENT_URL,
-        method="POST", #if you are unable to use POST in your environment, manually create a comment in the GitHub issue for processing
+        method="POST", # if you are unable to use POST in your environment, manually create a comment in the GitHub issue for processing
         headers={
             "Authorization": f"token {GITHUB_TOKEN}",
             "Content-Type": "application/json"
@@ -115,7 +113,7 @@ if result.success:
     print("AI Code Insight reporting complete. Check the configured GitHub Issue for details.")
 else:
     print(f"Code insight reporting failed with errors: {result.errors}")
-
+```
 
 That's it! PowerFlow handles the rest with beautiful progress tracking and error handling.
 
