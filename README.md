@@ -113,7 +113,7 @@ if GITHUB_TOKEN:
         )
     )
 else:
-    # Agent will post the comment manually (no token required)
+    # Agent will need to post the comment manually by after calling the search() tool from GitHub Connectors
     pipeline.add_stage(
         Destination(
             url=GITHUB_ISSUE_COMMENT_URL,
