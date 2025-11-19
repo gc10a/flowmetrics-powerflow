@@ -61,8 +61,8 @@ PowerFlow now includes an experimental AI-powered feature for analyzing your loc
 ```python
 from powerflow import (
     Pipeline,
-    GitHubConnectorScannerSource, # A source that scans local files
-    CodeSnippetProcessor, # A transformer that extracts snippets
+    GitHubConnectorScannerSource, 
+    CodeSnippetProcessor, 
     Destination,
 )
 
