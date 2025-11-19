@@ -1,0 +1,360 @@
+# PowerFlow
+
+<div align="center">
+
+![PowerFlow Logo](https://via.placeholder.com/150x150/4A90E2/FFFFFF?text=PowerFlow)
+
+**A Python framework for building revenue operations data pipelines**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+[Features](#features) • [Installation](#installation) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Examples](#examples) • [Contributing](#contributing)
+
+</div>
+
+---
+
+## Overview
+
+PowerFlow is an open-source Python framework for building robust, scalable data pipelines for revenue operations. Whether you're syncing data from Salesforce, analyzing deal velocity, or building custom revenue reports, PowerFlow makes it easy to create production-ready data workflows.
+
+**Built by [FlowMetrics](https://flowmetrics.com)** - Trusted by Fortune 500 companies for enterprise revenue operations.
+
+## Features
+
+✨ **Simple & Intuitive API** - Build complex pipelines with just a few lines of code
+
+🤖 **AI-Powered Intelligence** - Smart deal scoring, anomaly detection, forecasting, and insights
+
+🔌 **Built-in Integrations** - Connect to Salesforce, HubSpot, and more out of the box
+
+🚀 **High Performance** - Process millions of records efficiently
+
+🎨 **Beautiful Output** - Rich console output with progress bars and formatted logging
+
+🔧 **Extensible** - Easy to create custom sources, transformers, and destinations
+
+📊 **Production Ready** - Comprehensive error handling and monitoring
+
+## Installation
+
+```bash
+# Basic installation
+pip install powerflow
+
+# With Salesforce support
+pip install powerflow[salesforce]
+
+# With HubSpot support
+pip install powerflow[hubspot]
+
+# Development installation
+pip install powerflow[dev]
+```
+
+## Quick Start
+
+Here's a simple pipeline that filters high-value deals:
+
+```python
+from powerflow import (
+    Pipeline,
+    CSVSource,
+    FilterTransformer,
+    JSONDestination,
+)
+
+# Create a pipeline
+pipeline = Pipeline(name="High Value Deals")
+
+# Add stages
+pipeline.add_stage(CSVSource("deals.csv"))
+pipeline.add_stage(
+    FilterTransformer(lambda deal: float(deal["amount"]) > 50000)
+)
+pipeline.add_stage(JSONDestination("high_value_deals.json"))
+
+# Run it!
+result = pipeline.run()
+```
+
+That's it! PowerFlow handles the rest with beautiful progress tracking and error handling.
+
+## Core Concepts
+
+### Pipeline Stages
+
+PowerFlow pipelines consist of three types of stages:
+
+1. **Sources** - Read data from various inputs (CSV, JSON, Salesforce, HubSpot, etc.)
+2. **Transformers** - Process and transform data (filter, map, aggregate, enrich, etc.)
+3. **Destinations** - Write data to outputs (CSV, JSON, webhooks, etc.)
+
+### Example: Revenue Analysis Pipeline
+
+```python
+from powerflow import (
+    Pipeline,
+    SalesforceSource,
+    FilterTransformer,
+    AggregateTransformer,
+    CSVDestination,
+)
+
+pipeline = Pipeline(name="Q4 Revenue Analysis")
+
+# Fetch opportunities from Salesforce
+pipeline.add_stage(
+    SalesforceSource(
+        username=SFDC_USERNAME,
+        password=SFDC_PASSWORD,
+        security_token=SFDC_TOKEN,
+        object_type="Opportunity",
+        fields=["Amount", "StageName", "Region"],
+        where_clause="CloseDate >= 2025-10-01",
+    )
+)
+
+# Filter for closed-won deals
+pipeline.add_stage(
+    FilterTransformer(lambda opp: opp["StageName"] == "Closed Won")
+)
+
+# Aggregate by region
+pipeline.add_stage(
+    AggregateTransformer(
+        group_by=["Region"],
+        aggregations={"Amount": "sum", "Id": "count"},
+    )
+)
+
+# Save results
+pipeline.add_stage(CSVDestination("q4_revenue_by_region.csv"))
+
+result = pipeline.run()
+```
+
+## Available Components
+
+### Sources
+- `CSVSource` - Read from CSV files
+- `JSONSource` - Read from JSON files
+- `SalesforceSource` - Fetch data from Salesforce
+- `HubSpotSource` - Fetch data from HubSpot
+- `GeneratorSource` - Generate data programmatically
+
+### Transformers
+- `FilterTransformer` - Filter records with a predicate
+- `MapTransformer` - Transform each record
+- `AggregateTransformer` - Group and aggregate data
+- `EnrichTransformer` - Enrich records with additional data
+- `DeduplicateTransformer` - Remove duplicate records
+
+### AI Transformers 🤖
+- `DealScoringTransformer` - AI-powered deal scoring and classification
+- `AnomalyDetectionTransformer` - Detect unusual patterns in data
+- `SentimentAnalysisTransformer` - Analyze sentiment in text fields
+- `ForecastTransformer` - Generate revenue forecasts
+- `SmartEnrichmentTransformer` - Intelligent data enrichment
+
+### AI Analyzers 🧠
+- `RevenueInsightAnalyzer` - Generate insights from revenue data
+- `ChurnPredictionAnalyzer` - Predict customer churn risk
+- `DealVelocityAnalyzer` - Analyze deal velocity and pipeline health
+
+### Destinations
+- `CSVDestination` - Write to CSV files
+- `JSONDestination` - Write to JSON files
+- `ConsoleDestination` - Print to console
+- `WebhookDestination` - Send to HTTP endpoints
+
+## Advanced Usage
+
+### Pipeline Hooks
+
+Add custom logic at various points in the pipeline:
+
+```python
+def log_stage_completion(pipeline, context, stage):
+    print(f"Completed: {stage.name} - {len(context.data)} records")
+
+pipeline.add_hook("post_stage", log_stage_completion)
+```
+
+### Error Handling
+
+Control how errors are handled:
+
+```python
+# Fail immediately on first error
+pipeline = Pipeline(fail_fast=True)
+
+# Or continue and collect errors
+pipeline = Pipeline(fail_fast=False)
+result = pipeline.run()
+
+# Check for errors
+if result.errors:
+    for error in result.errors:
+        print(f"Error in {error['stage']}: {error['error']}")
+```
+
+### Custom Transformers
+
+Create your own transformers:
+
+```python
+from powerflow import Transformer, PipelineContext
+
+class MyCustomTransformer(Transformer):
+    def transform(self, data):
+        # Your custom logic here
+        return processed_data
+
+pipeline.add_stage(MyCustomTransformer())
+```
+
+## Examples
+
+Check out the [examples/](examples/) directory for more:
+
+- **basic_pipeline.py** - Simple CSV to JSON pipeline
+- **aggregation_pipeline.py** - Revenue aggregation and analysis
+- **salesforce_example.py** - Salesforce opportunity analysis
+- **webhook_example.py** - Send alerts via webhooks
+
+## Use Cases
+
+PowerFlow is perfect for:
+
+- 📊 **Revenue Reporting** - Aggregate and analyze revenue data across systems
+- 🔄 **Data Synchronization** - Sync data between CRMs and data warehouses
+- 🎯 **Lead Scoring** - Enrich and score leads with custom logic
+- 📈 **Sales Analytics** - Build custom sales dashboards and reports
+- 🔔 **Alert Systems** - Monitor deals and send notifications
+- 🧹 **Data Cleaning** - Deduplicate and standardize data
+
+## Why PowerFlow?
+
+### Before PowerFlow 😓
+```python
+# Lots of boilerplate code
+import csv
+import json
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+try:
+    logger.info("Reading CSV...")
+    with open("deals.csv") as f:
+        reader = csv.DictReader(f)
+        deals = list(reader)
+    
+    logger.info(f"Processing {len(deals)} deals...")
+    filtered = []
+    for deal in deals:
+        try:
+            if float(deal["amount"]) > 50000:
+                filtered.append(deal)
+        except Exception as e:
+            logger.error(f"Error processing deal: {e}")
+    
+    logger.info(f"Writing {len(filtered)} deals...")
+    with open("output.json", "w") as f:
+        json.dump(filtered, f, indent=2)
+    
+    logger.info("Done!")
+except Exception as e:
+    logger.error(f"Pipeline failed: {e}")
+    raise
+```
+
+### With PowerFlow 🎉
+```python
+from powerflow import Pipeline, CSVSource, FilterTransformer, JSONDestination
+
+Pipeline("High Value Deals") \
+    .add_stage(CSVSource("deals.csv")) \
+    .add_stage(FilterTransformer(lambda d: float(d["amount"]) > 50000)) \
+    .add_stage(JSONDestination("output.json")) \
+    .run()
+```
+
+Clean, simple, and production-ready!
+
+## Documentation
+
+### API Reference
+
+Full API documentation is available in the [docs/](docs/) directory:
+
+- [Pipeline API](docs/api/pipeline.md)
+- [Sources](docs/api/sources.md)
+- [Transformers](docs/api/transformers.md)
+- [Destinations](docs/api/destinations.md)
+- [Integrations](docs/api/integrations.md)
+
+### Guides
+
+- [Getting Started Guide](docs/guides/getting-started.md)
+- [Building Custom Components](docs/guides/custom-components.md)
+- [Best Practices](docs/guides/best-practices.md)
+- [Deployment Guide](docs/guides/deployment.md)
+
+## Contributing
+
+We love contributions! PowerFlow is open source and we welcome:
+
+- 🐛 Bug reports and fixes
+- ✨ New features and integrations
+- 📖 Documentation improvements
+- 💡 Ideas and suggestions
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## Community & Support
+
+- 📖 [Documentation](docs/)
+- 💬 [GitHub Discussions](https://github.com/flowmetrics/powerflow/discussions)
+- 🐛 [Issue Tracker](https://github.com/flowmetrics/powerflow/issues)
+- 🌟 [Examples](examples/)
+
+## Roadmap
+
+Upcoming features:
+
+- [ ] Additional integrations (Pipedrive, Zendesk, Snowflake)
+- [ ] Parallel processing for large datasets
+- [ ] Pipeline scheduling and orchestration
+- [ ] Web UI for visual pipeline building
+- [ ] Data quality validation framework
+- [ ] Incremental data loading
+- [ ] Built-in data caching
+
+## License
+
+PowerFlow is released under the [MIT License](LICENSE).
+
+## About FlowMetrics
+
+PowerFlow is built and maintained by [FlowMetrics](https://flowmetrics.com), an enterprise revenue operations platform trusted by Fortune 500 companies. We believe in giving back to the open source community that has helped us build amazing products.
+
+### Related Projects
+
+- [FlowMetrics Platform](https://flowmetrics.com) - Enterprise revenue operations & analytics
+- [FlowMetrics API](https://api.flowmetrics.com) - Revenue operations API
+
+---
+
+<div align="center">
+
+**⭐ If you find PowerFlow useful, please star the repo! ⭐**
+
+Made with ❤️ by the FlowMetrics team
+
+</div>
+
