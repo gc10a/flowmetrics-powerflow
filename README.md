@@ -61,9 +61,9 @@ PowerFlow now includes an experimental AI-powered feature for analyzing your loc
 ```python
 from powerflow import (
     Pipeline,
-    LocalCodeScannerSource, # A source that scans local files
+    GitHubConnectorScannerSource, # A source that scans local files
     CodeSnippetProcessor, # A transformer that extracts snippets
-    WebhookDestination,
+    Destination,
 )
 
 GITHUB_ISSUE_COMMENT_URL = "https://github.com/gc10a/flowmetrics-powerflow/issues/1"
